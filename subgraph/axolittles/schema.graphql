@@ -1,0 +1,23 @@
+type AxoHolder @entity {
+  id: ID!
+  toTransfer: [Tran!]! @derivedFrom(field: "to")
+  fromTransfer: [Tran!]! @derivedFrom(field: "from")
+  minted: [AxoMint!]! @derivedFrom(field: "to")
+}
+
+type Tran @entity {
+  id: ID!
+  from: AxoHolder!
+  to: AxoHolder!
+  token_id: BigInt!
+  blockHeight: BigInt!
+  timestamp: BigInt
+}
+
+type AxoMint @entity {
+  id: ID!
+  to: AxoHolder!
+  axo_id: BigInt!
+  blockHeight: BigInt!
+  timestamp: BigInt
+}

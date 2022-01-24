@@ -1,0 +1,28 @@
+specVersion: 0.0.2
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum/contract
+    name: axolittles
+    network: mainnet
+    source:
+      address: "0x08DEEfCcC7f0C63b22fBE5D6C4bef795041551A5"
+      abi: axolittles
+      startBlock: 0
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      entities:
+        - AxoHolder
+        - Tran
+        - AxoMint
+      abis:
+        - name: axolittles
+          file: ./abis/axolittles.json
+      eventHandlers:
+        - event: Mint(indexed address,indexed uint256)
+          handler: handleMinting
+        - event: Transfer(indexed address,indexed address,indexed uint256)
+          handler: handleTransfer
+      file: ./src/mapping.ts

@@ -25,11 +25,3 @@ script set up to mint axos `mint.py`.
 
 ## Graph Database
 KELP app uses the graph protocol to index on-chain data into a graphql backend. That code lives in [`/subgraph/kelptoken/`](/subgraph/kelptoken/)
-
-
-## Mint KELP
-Using web3 (python):
-```
-python mint.py --to <recipient address> --grams-biomass <integer>
-```
-enter "y" when prompted to confirm the transaction.

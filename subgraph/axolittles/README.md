@@ -9,10 +9,19 @@ When you deploy a fresh contract, update the `contract address` field in the [su
 npm install
 ```
 
-# run things
+# run things locally
 
 ```
 npm run codegen
 npm run create-local
 npm run deploy-local
+```
+
+# deploy subgraph
+```
+npm install -g @graphprotocol/graph-cli
+graph init --studio axolittles
+graph auth  --studio <subgraph-key>
+graph codegen && graph build
+graph deploy --studio axolittles
 ```

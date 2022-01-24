@@ -24,4 +24,4 @@ truffle(develop)> migrate
 script set up to mint axos `mint.py`.
 
 ## Graph Database
-KELP app uses the graph protocol to index on-chain data into a graphql backend. That code lives in [`/subgraph/kelptoken/`](/subgraph/kelptoken/)
+Graph protocol code lives in [`/subgraph/axolittles/`](/subgraph/axolittles/)

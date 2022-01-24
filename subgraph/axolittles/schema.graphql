@@ -1,3 +1,10 @@
+type ExampleEntity @entity {
+  id: ID!
+  count: BigInt!
+  owner: Bytes! # address
+  approved: Bytes! # address
+}
+
 type AxoHolder @entity {
   id: ID!
   toTransfer: [Tran!]! @derivedFrom(field: "to")
@@ -17,7 +24,7 @@ type Tran @entity {
 type AxoMint @entity {
   id: ID!
   to: AxoHolder!
-  axo_id: BigInt!
+  token_id: BigInt!
   blockHeight: BigInt!
   timestamp: BigInt
 }

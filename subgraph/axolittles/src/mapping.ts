@@ -1,71 +1,19 @@
 import { BigInt } from "@graphprotocol/graph-ts"
 import {
-  Axolittles,
+  axolittles,
   Approval,
   ApprovalForAll,
   Mint,
   OwnershipTransferred,
   Transfer
-} from "../generated/Axolittles/Axolittles"
-import { AxoHolder, Tran, AxoMint } from "../generated/schema"
+} from "../generated/axolittles/axolittles"
+
+let stakeAddressV1 = "0x1ca6e4643062e67ccd555fb4f64bee603340e0ea"
+let nullAddress = "0x0000000000000000000000000000000000000000"
+
+import { AxoHolder, Tran, AxoMint, Axolittle } from "../generated/schema"
 
 export function handleApproval(event: Approval): void {}
-  // // Entities can be loaded from the store using a string ID; this ID
-  // // needs to be unique across all entities of the same type
-  // let entity = ExampleEntity.load(event.transaction.from.toHex())
-
-  // // Entities only exist after they have been saved to the store;
-  // // `null` checks allow to create entities on demand
-  // if (!entity) {
-  //   entity = new ExampleEntity(event.transaction.from.toHex())
-
-  //   // Entity fields can be set using simple assignments
-  //   entity.count = BigInt.fromI32(0)
-  // }
-
-  // // BigInt and BigDecimal math are supported
-  // entity.count = entity.count + BigInt.fromI32(1)
-
-  // // Entity fields can be set based on event parameters
-  // entity.owner = event.params.owner
-  // entity.approved = event.params.approved
-
-  // // Entities can be written to the store with `.save()`
-  // entity.save()
-
-  // Note: If a handler doesn't require existing field values, it is faster
-  // _not_ to load the entity from the store. Instead, create it fresh with
-  // `new Entity(...)`, set the fields that should be updated and save the
-  // entity back to the store. Fields that were not set or unset remain
-  // unchanged, allowing for partial updates to be applied.
-
-  // It is also possible to access smart contracts from mappings. For
-  // example, the contract that has emitted the event can be connected to
-  // with:
-  //
-  // let contract = Contract.bind(event.address)
-  //
-  // The following functions can then be called on this contract to access
-  // state variables and other data:
-  //
-  // - contract._baseTokenURI(...)
-  // - contract.balanceOf(...)
-  // - contract.getApproved(...)
-  // - contract.isApprovedForAll(...)
-  // - contract.isOpen(...)
-  // - contract.maxItems(...)
-  // - contract.maxItemsPerTx(...)
-  // - contract.mintPrice(...)
-  // - contract.name(...)
-  // - contract.owner(...)
-  // - contract.ownerOf(...)
-  // - contract.publicMintPaused(...)
-  // - contract.startTimestamp(...)
-  // - contract.supportsInterface(...)
-  // - contract.symbol(...)
-  // - contract.tokenURI(...)
-  // - contract.totalSupply(...)
-//}
 
 export function handleApprovalForAll(event: ApprovalForAll): void {}
 
@@ -92,12 +40,37 @@ export function handleTransfer(event: Transfer): void {
   let fromAccount = AxoHolder.load(event.params.from.toHex())
   if (fromAccount == null) {
     fromAccount = new AxoHolder(event.params.from.toHex())
+    fromAccount.firstActiveBlock = event.block.number
   }
 
   let toAccount = AxoHolder.load(event.params.to.toHex())
   if (toAccount == null) {
     toAccount = new AxoHolder(event.params.to.toHex())
+    toAccount.firstActiveBlock = event.block.number
   }
+
+  let axo = Axolittle.load(event.params.tokenId.toString())
+  if (axo == null) {
+    axo = new Axolittle(event.params.tokenId.toString())
+    axo.mintBlock = event.block.number
+  }
+  axo.owner = event.params.to.toHex()
+
+  if (event.params.to.toHex() == stakeAddressV1) {
+    //if this is a staking v1 transfer
+    axo.stakedOwnerV1 = event.params.from.toHex()
+  } else {
+    axo.stakedOwnerV1 = nullAddress
+  }
+
+  if (event.params.from.toHex() == stakeAddressV1) {
+    //if this is an unstaking v1 transfer
+    axo.stakedOwnerV1 = nullAddress
+  }
+
+
+  fromAccount.lastActiveBlock = event.block.number
+  toAccount.lastActiveBlock = event.block.number
   
   let txnString = event.transaction.hash.toHexString()
   let tokenString = event.params.tokenId.toString()
@@ -117,6 +90,7 @@ export function handleTransfer(event: Transfer): void {
   fromAccount.save()
   toAccount.save()
   transfer.save()
+  axo.save()
 
 }
 

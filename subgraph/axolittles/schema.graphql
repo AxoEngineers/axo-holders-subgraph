@@ -1,15 +1,12 @@
-type ExampleEntity @entity {
-  id: ID!
-  count: BigInt!
-  owner: Bytes! # address
-  approved: Bytes! # address
-}
-
 type AxoHolder @entity {
   id: ID!
   toTransfer: [Tran!]! @derivedFrom(field: "to")
   fromTransfer: [Tran!]! @derivedFrom(field: "from")
+  axosHeld: [Axolittle!]! @derivedFrom(field: "owner")
+  axosStakedV1: [Axolittle!]! @derivedFrom(field: "stakedOwnerV1")
   minted: [AxoMint!]! @derivedFrom(field: "to")
+  firstActiveBlock: BigInt!
+  lastActiveBlock: BigInt!
 }
 
 type Tran @entity {
@@ -19,6 +16,7 @@ type Tran @entity {
   token_id: BigInt!
   blockHeight: BigInt!
   timestamp: BigInt
+  transaction_id: String!
 }
 
 type AxoMint @entity {
@@ -27,4 +25,11 @@ type AxoMint @entity {
   token_id: BigInt!
   blockHeight: BigInt!
   timestamp: BigInt
+}
+
+type Axolittle @entity {
+  id: ID!
+  owner: AxoHolder!
+  stakedOwnerV1: AxoHolder!
+  mintBlock: BigInt!
 }

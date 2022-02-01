@@ -3,11 +3,11 @@ schema:
   file: ./schema.graphql
 dataSources:
   - kind: ethereum
-    name: Axolittles
+    name: axolittles
     network: mainnet
     source:
       address: "0xf36446105fF682999a442b003f2224BcB3D82067"
-      abi: Axolittles
+      abi: axolittles
       startBlock: 13171333
     mapping:
       kind: ethereum/events
@@ -20,8 +20,8 @@ dataSources:
         - OwnershipTransferred
         - Transfer
       abis:
-        - name: Axolittles
-          file: ./abis/Axolittles.json
+        - name: axolittles
+          file: ./abis/axolittles.json
       eventHandlers:
         - event: Approval(indexed address,indexed address,indexed uint256)
           handler: handleApproval

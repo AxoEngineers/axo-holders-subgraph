@@ -9,6 +9,7 @@ import {
 } from "../generated/axolittles/axolittles"
 
 let stakeAddressV1 = "0x1ca6e4643062e67ccd555fb4f64bee603340e0ea"
+let stakeAddressV2 = "0x1ca6e4643062e67ccd555fb4f64bee603340e0e2"
 let nullAddress = "0x0000000000000000000000000000000000000000"
 
 import { AxoHolder, Tran, AxoMint, Axolittle } from "../generated/schema"
@@ -66,6 +67,18 @@ export function handleTransfer(event: Transfer): void {
   if (event.params.from.toHex() == stakeAddressV1) {
     //if this is an unstaking v1 transfer
     axo.stakedOwnerV1 = nullAddress
+  }
+
+  if (event.params.to.toHex() == stakeAddressV2) {
+    //if this is a staking v2 transfer
+    axo.stakedOwnerV2 = event.params.from.toHex()
+  } else {
+    axo.stakedOwnerV2 = nullAddress
+  }
+
+  if (event.params.from.toHex() == stakeAddressV1) {
+    //if this is an unstaking v2 transfer
+    axo.stakedOwnerV2 = nullAddress
   }
 
 

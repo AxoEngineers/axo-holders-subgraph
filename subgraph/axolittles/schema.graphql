@@ -4,6 +4,7 @@ type AxoHolder @entity {
   fromTransfer: [Tran!]! @derivedFrom(field: "from")
   axosHeld: [Axolittle!]! @derivedFrom(field: "owner")
   axosStakedV1: [Axolittle!]! @derivedFrom(field: "stakedOwnerV1")
+  axosStakedV2: [Axolittle!]! @derivedFrom(field: "stakedOwnerV2")
   minted: [AxoMint!]! @derivedFrom(field: "to")
   firstActiveBlock: BigInt!
   lastActiveBlock: BigInt!
@@ -31,5 +32,6 @@ type Axolittle @entity {
   id: ID!
   owner: AxoHolder!
   stakedOwnerV1: AxoHolder!
+  stakedOwnerV2: AxoHolder!
   mintBlock: BigInt!
 }

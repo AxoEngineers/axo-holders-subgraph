@@ -6,6 +6,7 @@ type AxoHolder @entity {
   axosStakedV1: [Axolittle!]! @derivedFrom(field: "stakedOwnerV1")
   axosStakedV2: [Axolittle!]! @derivedFrom(field: "stakedOwnerV2")
   minted: [AxoMint!]! @derivedFrom(field: "to")
+  claimedBubble: [ClaimBubble!]! @derivedFrom(field: "to")
   firstActiveBlock: BigInt!
   lastActiveBlock: BigInt!
 }
@@ -15,6 +16,15 @@ type Tran @entity {
   from: AxoHolder!
   to: AxoHolder!
   token_id: BigInt!
+  blockHeight: BigInt!
+  timestamp: BigInt
+  transaction_id: String!
+}
+
+type ClaimBubble @entity {
+  id: ID!
+  to: AxoHolder!
+  amount: BigInt!
   blockHeight: BigInt!
   timestamp: BigInt
   transaction_id: String!

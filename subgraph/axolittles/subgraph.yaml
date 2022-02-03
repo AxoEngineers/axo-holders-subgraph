@@ -33,4 +33,24 @@ dataSources:
           handler: handleOwnershipTransferred
         - event: Transfer(indexed address,indexed address,indexed uint256)
           handler: handleTransfer
-      file: ./src/mapping.ts
+      file: ./src/axo_mapping.ts
+  - kind: ethereum
+    name: bubble
+    network: mainnet
+    source:
+      address: "0x58f46F627C88a3b217abc80563B9a726abB873ba"
+      abi: bubble
+      startBlock: 13171333
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - Transfer
+      abis:
+        - name: bubble
+          file: ./abis/bubble.json
+      eventHandlers:
+        - event: Transfer(indexed address,indexed address,uint256)
+          handler: handleBubbleTransfer
+      file: ./src/bubble_mapping.ts

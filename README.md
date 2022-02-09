@@ -2,7 +2,7 @@
 Developing a [subgraph](https://thegraph.com/en/) to keep track of Axolittles holders.
 
 ## Subgraph
-the subgraph source code is (here)[/subgraph/axolittles].
+the subgraph source code is [here](/subgraph/axolittles).
 
 ### Deploy the smart contract to local private blockchain
 ```

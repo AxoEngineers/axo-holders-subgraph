@@ -24,4 +24,7 @@ Currently the airdrop logic has a hard-coded "n8_block" (`13949318`), the block 
 python get_airdrop.py --stopBlock 14169463
 ```
 
+add `--verbose` if you want logs.
+
+
 the airdrop.json file should be written into the root of this repository.

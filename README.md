@@ -1,18 +1,8 @@
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
-Built using [truffle suite react box](https://www.trufflesuite.com/boxes/react)
-
 # Axolittles Subgraph Project
 Developing a [subgraph](https://thegraph.com/en/) to keep track of Axolittles holders.
 
-#### This was copied from another project of Toast's
-Safely ignore most everthing in the `client/` directory, the frontend piece of this react box is not intended to be used here.
-
-## Running Dev Stack with Truffle
-
-### Install stuff
-```
-npm install
-```
+## Subgraph
+the subgraph source code is (here)[/subgraph/axolittles].
 
 ### Deploy the smart contract to local private blockchain
 ```

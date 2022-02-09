@@ -426,8 +426,8 @@ def compute_airdrop(startBlock=13949318, stopBlock=14169277, verbose=True):
     print('running for: ', len(inp), ' remaining addresses.')
     for i, address in enumerate(inp):
         #time.sleep(0.01)
-        print(i)
-        print(i/len(inp))
+        if verbose:
+            print(round(100*i/len(inp), 4), "percent complete.")
         success = False
         while not success:
             try:
@@ -451,8 +451,8 @@ def compute_airdrop(startBlock=13949318, stopBlock=14169277, verbose=True):
         }
         if airdrop_total > 0:
             output.append(entry)
-            print(entry)
             if verbose:
+                print(entry)
                 print('writing to airdrop.json...')
             with open('./airdrop.json', 'w') as f:
                 f.write(json.dumps(output))
@@ -461,9 +461,10 @@ def compute_airdrop(startBlock=13949318, stopBlock=14169277, verbose=True):
         else:
             ngmi.append(entry)
             if verbose:
+                print(entry)
                 print('got zero balance.')
                 print('writing to ngmi.json...')
-            with open('./airdrop.json', 'w') as f:
+            with open('./ngmi.json', 'w') as f:
                 f.write(json.dumps(ngmi))
             if verbose:
                 print('done!')

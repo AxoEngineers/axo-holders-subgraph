@@ -9,10 +9,11 @@ import {
 } from "../generated/axolittles/axolittles"
 
 let stakeAddressV1 = "0x1ca6e4643062e67ccd555fb4f64bee603340e0ea"
-let stakeAddressV2 = "0xfa822d611e583a6fb879c03645ddfd1c8877252a"
+let stakeAddressV2Test = "0xfa822d611e583a6fb879c03645ddfd1c8877252a"
+let stakeAddressV2 = "0xbfca4318f4d47f8a8e49e16c0f2b466c46eac184"
 let nullAddress = "0x0000000000000000000000000000000000000000"
 
-import { AxoHolder, Tran, AxoMint, Axolittle } from "../generated/schema"
+import { AxoHolder, Tran, AxoMint, Axolittle, TransferTransaction } from "../generated/schema"
 
 export function handleApproval(event: Approval): void {}
 
@@ -20,11 +21,6 @@ export function handleApprovalForAll(event: ApprovalForAll): void {}
 
 export function handleMint(event: Mint): void {
   let minting = new AxoMint(event.transaction.hash.toHex())
-
-  // minting.to = AxoHolder.load(event.params.owner.toHex())
-  // if (minting.to == null) {
-  //   minting.to = new AxoHolder(event.params.owner.toHex())
-  // }
 
   minting.to = event.params.owner.toHex()
   minting.token_id = event.params.tokenId
@@ -69,6 +65,18 @@ export function handleTransfer(event: Transfer): void {
     axo.stakedOwnerV1 = nullAddress
   }
 
+  if (event.params.to.toHex() == stakeAddressV2Test) {
+    //if this is a staking v2 test contract transfer
+    axo.stakedOwnerV2Test = event.params.from.toHex()
+  } else {
+    axo.stakedOwnerV2Test = nullAddress
+  }
+
+  if (event.params.from.toHex() == stakeAddressV2Test) {
+    //if this is an unstaking v2 test contract transfer
+    axo.stakedOwnerV2Test = nullAddress
+  }
+
   if (event.params.to.toHex() == stakeAddressV2) {
     //if this is a staking v2 transfer
     axo.stakedOwnerV2 = event.params.from.toHex()
@@ -76,7 +84,7 @@ export function handleTransfer(event: Transfer): void {
     axo.stakedOwnerV2 = nullAddress
   }
 
-  if (event.params.from.toHex() == stakeAddressV1) {
+  if (event.params.from.toHex() == stakeAddressV2) {
     //if this is an unstaking v2 transfer
     axo.stakedOwnerV2 = nullAddress
   }
@@ -99,11 +107,23 @@ export function handleTransfer(event: Transfer): void {
   transfer.token_id = event.params.tokenId
   transfer.blockHeight = event.block.number
   transfer.timestamp = event.block.timestamp
-  transfer.transaction_id = event.transaction.hash.toHex()
+
+  let transaction = TransferTransaction.load(event.transaction.hash.toHex())
+  if (transaction == null) {
+    // need to create instance
+    transaction = new TransferTransaction(event.transaction.hash.toHex())
+    transaction.nTransfers = 0
+  }
+  transaction.valueWei = event.transaction.value
+  // incriment for each axo transfered.
+  transaction.nTransfers += 1
+  
+  transfer.transaction = event.transaction.hash.toHex()
+  transfer.value = event.transaction.value
   fromAccount.save()
   toAccount.save()
   transfer.save()
   axo.save()
+  transaction.save()
 
 }
-

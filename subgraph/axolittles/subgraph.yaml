@@ -54,3 +54,45 @@ dataSources:
         - event: Transfer(indexed address,indexed address,uint256)
           handler: handleBubbleTransfer
       file: ./src/bubble_mapping.ts
+  - kind: ethereum
+    name: airdrop1
+    network: mainnet
+    source:
+      address: "0x184FAe65b0D0bBbA559326FEb7D9FCC6e8f31df7"
+      abi: airdrop1
+      startBlock: 13171333
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - Transfer
+      abis:
+        - name: airdrop1
+          file: ./abis/airdrop.json
+      eventHandlers:
+        - event: ClaimAirdrop(indexed address,uint256,uint256)
+          handler: handleClaimAirdrop
+      file: ./src/bubble_mapping.ts
+  - kind: ethereum
+    name: wrapped_eth
+    network: mainnet
+    source:
+      address: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"
+      abi: wrapped_eth
+      startBlock: 13171333
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - Transfer
+      abis:
+        - name: wrapped_eth
+          file: ./abis/wrapped_eth.json
+      eventHandlers:
+        - event: Transfer(indexed address,indexed address,uint256)
+          handler: handleWethTransfer
+      file: ./src/weth_mapping.ts
+
+      #0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2

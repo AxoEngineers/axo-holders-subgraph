@@ -4,7 +4,7 @@ import {
 } from "../generated/bubble/bubble"
 import {
   ClaimAirdrop
-} from "../generated/airdrop1/airdrop"
+} from "../generated/airdrop1/airdrop1"
 
 // let stakeAddressV1 = "0x1ca6e4643062e67ccd555fb4f64bee603340e0ea"
 // let stakeAddressV2 = "0xfa822d611e583a6fb879c03645ddfd1c8877252a"

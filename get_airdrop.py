@@ -7,10 +7,12 @@ import argparse
 import time
 
 
-transport = AIOHTTPTransport(url="https://api.studio.thegraph.com/query/19838/axolittles/v0.0.84")
+transport = AIOHTTPTransport(url="https://api.studio.thegraph.com/query/19838/axolittles/v0.0.85")
 client = Client(transport=transport, fetch_schema_from_transport=True)
 emission_v1 = 15000000000000000
 deploy_block = 13171333
+n8_block = 13949318
+first_airdrop_block = 14169463
 
 #############################
 #graph queries and utilities#
@@ -96,6 +98,9 @@ query getHolderAtBlock($blockHeight: Int!, $address: ID!)
     axosStakedV1(first:1000) {
       id
     }
+    axosStakedV2Test(first:1000) {
+      id
+    }
     axosStakedV2(first:1000) {
       id
     }
@@ -159,6 +164,42 @@ def get_total_claimed(address, stopBlock):
   claimed by address.
   """
   _, amounts = get_claims_for_user(address, stopBlock)
+  return sum(amounts)
+
+airdrop_claim_query = gql(
+"""
+query getAirdropClaims($address: ID!, $stopBlock: BigInt!) {
+  axoHolder(id: $address) {
+    id
+    claimedAirdrops (where: { blockHeight_lt: $stopBlock }) {
+      amount
+    }
+}
+}
+
+"""
+)
+
+def get_airdrop_claims_for_user(address, stopBlock):
+  """
+  this will return a list of all the blocks when a user claimed $bubble
+  from an airdrop.
+  """
+  params = {
+    "address":address.lower(),
+    "stopBlock":int(stopBlock+1)
+    }
+  result = client.execute(airdrop_claim_query, variable_values=params)
+  claims = result['axoHolder']['claimedAirdrops']
+  amounts = np.array([int(x['amount']) for x in claims])
+  return amounts
+
+def get_total_airdrop_claimed(address, stopBlock):
+  """
+  returns the total amount of $bubble
+  claimed from airdrops.
+  """
+  amounts = get_airdrop_claims_for_user(address, stopBlock)
   return sum(amounts)
 
 activity_query = gql(
@@ -415,7 +456,43 @@ def get_claimable_axotime_after_n8(_history, n8_block=13949318, stop_block=14169
         axotime += _count * _time
     return axotime
 
-def compute_airdrop(startBlock=13949318, stopBlock=14169277, verbose=True):
+def get_claimable_axotime_after_first_airdrop(_history, first_airdrop_block=first_airdrop_block, stop_block=14169040):
+    axotime = 0
+    exit = False
+    active_blocks = [x["block"] for x in _history]
+    if max(active_blocks) <= first_airdrop_block:
+        state = _history[-1]
+        count = state["staked_count"]
+        _time = stop_block - first_airdrop_block
+        axotime += _time * count
+        return axotime
+    elif min(active_blocks) >= first_airdrop_block:
+        start_state = {
+          'block': first_airdrop_block, 
+          'staked_count': 0
+          }
+        _history = [start_state] + _history
+    else:
+        diffs = first_airdrop_block - np.array(active_blocks)
+        diffs = np.where(diffs<0, np.inf, diffs)
+        start_state_index = np.argmin(diffs)
+        start_state = _history[start_state_index].copy()
+        start_state["block"] = first_airdrop_block
+        _history = [start_state] + _history[(start_state_index+1):]
+    active_blocks = [x["block"] for x in _history]
+    diffs = stop_block - np.array(active_blocks)
+    diffs = np.where(diffs<0, np.inf, diffs)
+    stop_state_index = np.argmin(diffs)
+    stop_state = _history[stop_state_index].copy()
+    stop_state["block"] = stop_block
+    _history = _history[:(stop_state_index+1)] + [stop_state]
+    for i, state in enumerate(_history[:-1]):
+        _count = state["staked_count"]
+        _time = _history[i+1]["block"] - state["block"]
+        axotime += _count * _time
+    return axotime
+
+def compute_first_airdrop(startBlock=13949318, stopBlock=14169277, verbose=True):
     print('computing airdrop for start block: ', startBlock, ' and stopBlock: ', stopBlock)
     output = []
     ngmi = []
@@ -469,6 +546,71 @@ def compute_airdrop(startBlock=13949318, stopBlock=14169277, verbose=True):
             if verbose:
                 print('done!')
 
+
+def compute_later_airdrop(stopBlock=14324006, verbose=True):
+    print('computing airdrop for stopBlock: ', stopBlock)
+    output = []
+    ngmi = []
+    with open('./holders.json', 'r') as f:
+        inp = json.loads(f.read())
+        print('got: ', len(inp), ' total holder addresses.')
+    with open('./first_airdrop.json', 'r') as f:
+        first_airdrop = json.loads(f.read())
+        first_airdrop_indexed = {}
+        for item in first_airdrop:
+            first_airdrop_indexed[item['address']] = item['balance']
+        first_airdrop = first_airdrop_indexed
+        print('got: ', len(first_airdrop), ' addresses from first_airdrop.json')
+    output = []
+    print('running for: ', len(inp), ' remaining addresses.')
+    for i, address in enumerate(inp):
+        #time.sleep(0.01)
+        if verbose:
+            print(round(100*i/len(inp), 4), "percent complete.")
+        success = False
+        while not success:
+            try:
+                _history = get_transaction_history(address)
+                _history = parse_axotime(_history, address)
+                _history = counts_over_time(_history)
+                #axotime = get_claimable_axotime_before_n8(_history, n8_block=startBlock)
+                axotime = get_claimable_axotime_after_first_airdrop(_history, stop_block=stopBlock)
+                total_claimable = int(axotime) * emission_v1
+                #add in first airdrop balance
+                first_airdrop_claimable = int(first_airdrop.get(address, 0))
+                #subtract total claimed airdrop balance
+                total_claimed_airdrop = get_total_airdrop_claimed(address.lower(), stopBlock)
+                airdrop_total = first_airdrop_claimable + total_claimable - total_claimed_airdrop
+                success = True
+            except Exception as e:
+                print('failed with: ', str(e))
+                print('cooling down for 60 seconds...')
+                time.sleep(60)
+
+        entry = {
+          "address":address,
+          "balance":str(airdrop_total)
+        }
+        if airdrop_total > 0:
+            output.append(entry)
+            if verbose:
+                print(entry)
+                print('writing to airdrop.json...')
+            with open('./airdrop.json', 'w') as f:
+                f.write(json.dumps(output))
+            if verbose:
+                print('done!')
+        else:
+            ngmi.append(entry)
+            if verbose:
+                print(entry)
+                print('got zero balance.')
+                print('writing to ngmi.json...')
+            with open('./ngmi.json', 'w') as f:
+                f.write(json.dumps(ngmi))
+            if verbose:
+                print('done!')
+
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("--stopBlock", type=int,
@@ -485,15 +627,21 @@ def main():
     verbose = args.verbose
     print('using stopBlock: ', stop_block)
     print('getting all axoHolders...')
-    result = get_all_holders(stop_block, verbose=verbose)
+    #result = get_all_holders(stop_block, verbose=verbose)
+    result = ["0x4f17562c9a6ccfe47c3ef4245eb53c047cb2ff1d"]
     print('done!')
     with open('holders.json', 'w') as f:
         print('got: ', len(list(result)), " holders.")
         f.write(json.dumps(list(result)))
     print('computing airdrop balances...')
-    compute_airdrop(stopBlock=stop_block, verbose=verbose)
+    compute_later_airdrop(stopBlock=stop_block, verbose=verbose)
     print('done! exiting...')
     quit()
 
+#airdrop = airdrop1 + airdropx - airdropClaimAmount
+
 if __name__ in "__main__":
     main()
+    #print(get_count_at_block("0x4F17562C9a6cCFE47c3ef4245eb53c047Cb2Ff1D", 14181249))
+    # toast_address = "0x4f17562c9a6ccfe47c3ef4245eb53c047cb2ff1d"
+    # print(get_total_airdrop_claimed(toast_address, 14324006))

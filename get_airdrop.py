@@ -627,8 +627,7 @@ def main():
     verbose = args.verbose
     print('using stopBlock: ', stop_block)
     print('getting all axoHolders...')
-    #result = get_all_holders(stop_block, verbose=verbose)
-    result = ["0x4f17562c9a6ccfe47c3ef4245eb53c047cb2ff1d"]
+    result = get_all_holders(stop_block, verbose=verbose)
     print('done!')
     with open('holders.json', 'w') as f:
         print('got: ', len(list(result)), " holders.")

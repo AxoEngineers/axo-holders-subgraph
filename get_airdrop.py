@@ -546,6 +546,8 @@ def compute_first_airdrop(startBlock=13949318, stopBlock=14169277, verbose=True)
             if verbose:
                 print('done!')
 
+def get_v2_staking_bonus(start_block=14310658, stop_block=14354307):
+    return 0
 
 def compute_later_airdrop(stopBlock=14324006, verbose=True):
     print('computing airdrop for stopBlock: ', stopBlock)
@@ -578,9 +580,11 @@ def compute_later_airdrop(stopBlock=14324006, verbose=True):
                 total_claimable = int(axotime) * emission_v1
                 #add in first airdrop balance
                 first_airdrop_claimable = int(first_airdrop.get(address, 0))
+                #add in v2 staking bonus
+                v2_staking_bonus = get_v2_staking_bonus()
                 #subtract total claimed airdrop balance
                 total_claimed_airdrop = get_total_airdrop_claimed(address.lower(), stopBlock)
-                airdrop_total = first_airdrop_claimable + total_claimable - total_claimed_airdrop
+                airdrop_total = first_airdrop_claimable + total_claimable + v2_staking_bonus - total_claimed_airdrop
                 success = True
             except Exception as e:
                 print('failed with: ', str(e))

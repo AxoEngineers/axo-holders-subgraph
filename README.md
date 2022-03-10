@@ -30,4 +30,4 @@ add `--verbose` if you want moar logs.
 the `airdrop.json` file should be written into the root of this repository. you will also get a `ngmi.json` file which contains all the zero-balance airdrops (wallets that once held axos that won't be able to claim any tokens in this drop.)
 
 ### March Airdrop
-using block `14324006`
+using block `14360173`

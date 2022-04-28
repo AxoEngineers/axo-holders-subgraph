@@ -31,3 +31,9 @@ the `airdrop.json` file should be written into the root of this repository. you 
 
 ### March Airdrop
 using block `14360173`
+
+### Second March 2022 (bafc) Airdrop
+using block `14472866`
+
+### April 2022 Airdrop
+using block `14673935`

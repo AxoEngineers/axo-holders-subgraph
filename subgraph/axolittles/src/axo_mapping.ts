@@ -113,13 +113,18 @@ export function handleTransfer(event: Transfer): void {
     // need to create instance
     transaction = new TransferTransaction(event.transaction.hash.toHex())
     transaction.nTransfers = 0
+    transaction.blockHeight = event.block.number
+    transaction.timestamp = event.block.timestamp
+    transaction.valueWei = event.transaction.value
+    transaction.valueWrappedWei = new BigInt(0)
   }
   transaction.valueWei = event.transaction.value
+  transaction.valueBothWei = transaction.valueWei.plus(transaction.valueWrappedWei)
   // incriment for each axo transfered.
   transaction.nTransfers += 1
   
   transfer.transaction = event.transaction.hash.toHex()
-  transfer.value = event.transaction.value
+  // transfer.value = event.transaction.value.plus(transaction.valueWrappedWei)
   fromAccount.save()
   toAccount.save()
   transfer.save()

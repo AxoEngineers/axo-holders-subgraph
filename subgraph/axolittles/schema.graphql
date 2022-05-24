@@ -21,7 +21,6 @@ type Tran @entity {
   blockHeight: BigInt!
   timestamp: BigInt
   transaction: TransferTransaction!
-  value: BigInt!
 }
 
 type TransferTransaction @entity {
@@ -29,7 +28,10 @@ type TransferTransaction @entity {
   transfer: [Tran!]! @derivedFrom(field: "transaction")
   valueWei: BigInt!
   valueWrappedWei: BigInt!
+  valueBothWei: BigInt!
   nTransfers: Int!
+  blockHeight: BigInt!
+  timestamp: BigInt
 }
 
 type AirdropClaim @entity {

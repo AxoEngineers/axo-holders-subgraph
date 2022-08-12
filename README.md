@@ -21,7 +21,7 @@ pip install -r requirements.txt
 Currently the airdrop logic has a hard-coded "n8_block" (`13949318`), the block when n8 announced a new plan for axolittles staking, and the "first_airdrop_block", which was the block when the first airdrop (which included $bubble for non-staked axos, `14169463`). The only parameter to this script is the `stopBlock`, which is the block at which you would like to take the snapshot (probably a very recent block). After setting up your python env, invoke the script with:
 
 ```
-python get_airdrop.py --stopBlock 14169463
+python get_airdrop.py --stopBlock 14169463 --verbose
 ```
 
 add `--verbose` if you want moar logs.
@@ -31,3 +31,6 @@ the `airdrop.json` file should be written into the root of this repository. you 
 
 ### March Airdrop
 using block `14360173`
+
+### August Airdrop
+using block `15329300`

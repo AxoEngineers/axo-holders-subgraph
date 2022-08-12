@@ -6,7 +6,7 @@ import argparse
 from util import get_contract
 import numpy as np
     
-contract_address = '0x08DEEfCcC7f0C63b22fBE5D6C4bef795041551A5'
+contract_address = '0x5F6A7a501C74d2eb60F039e9D4Fb1c7C85ceB997'
 #contract_address = '0x0c2aFA30bBc3AAB44d74b0be85c4E27B378aE719' #ropsten deploy2
 
 provider_address = 'https://ropsten.infura.io/v3/e0612a9ac52d4e0ea8b800c5b24e48fb'
@@ -34,7 +34,7 @@ def parse_args():
 
 def mint_axos_local(
         contract=None,
-        provider_address="http://localhost:8545", 
+        provider_address="http://localhost:7545", 
         contract_address=contract_address
         ):
     w3 = Web3(Web3.HTTPProvider(provider_address))

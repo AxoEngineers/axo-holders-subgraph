@@ -5,9 +5,31 @@ import json
 import numpy as np
 import argparse
 import time
+import pandas as pd
 
+with open(f'../AxoBackend/data/graph-api-key.txt', 'r') as f:
+    graph_api_key = f.read()
 
-transport = AIOHTTPTransport(url="https://api.studio.thegraph.com/query/19838/axolittles/v0.0.85")
+graph_network_uri = f"https://gateway.thegraph.com/api/{graph_api_key}/subgraphs/id/GwchCg3UrmaxZAFVNRENf8MzFidL64jhTbDXMeP9Vhnx"
+
+transport = AIOHTTPTransport(url=graph_network_uri)
+
+client = Client(transport=transport, fetch_schema_from_transport=True)
+graph_network_client = client 
+
+hosted_transport = AIOHTTPTransport(url="https://api.thegraph.com/subgraphs/name/alliedtoasters/axolittles")
+hosted_client = Client(transport=hosted_transport, fetch_schema_from_transport=True)
+
+def call_subgraph(query, params):
+    try:
+        result = graph_network_client.execute(query, variable_values=params)
+        print("retrieved result from decentralized network")
+    except Exception as e:
+        print('got exception: ', str(e))
+        print('falling back on hosted service...')
+        result = hosted_client.execute(query, variable_values=params)
+    return result
+
 client = Client(transport=transport, fetch_schema_from_transport=True)
 emission_v1 = 15000000000000000
 deploy_block = 13171333
@@ -78,7 +100,8 @@ def get_all_holders(final_stop_block, verbose=True):
         if verbose:
           print(f'running for blocks: {start_block}, {stop_block}')
         params = {"startBlock": str(start_block-1), "stopBlock": str(stop_block+1), "skip":skip}
-        result = client.execute(holder_query, variable_values=params)
+        result = call_subgraph(holder_query, params)
+        #result = client.execute(holder_query, variable_values=params)
         if verbose:
           print('got: ', len(result['axoHolders']), 'holders.')
         assert len(result['axoHolders']) < 1000
@@ -588,6 +611,12 @@ def compute_later_airdrop(stopBlock=14324006, verbose=True):
                 total_claimed_airdrop = get_total_airdrop_claimed(address.lower(), stopBlock)
                 print(first_airdrop_claimable, total_claimable, total_claimed_airdrop)
                 airdrop_total = first_airdrop_claimable + total_claimable + v2_staking_bonus - total_claimed_airdrop
+                if address.lower() == "0xa1aed6f3b7c8f871b4ac27144ade9fda6fbcd639".lower():
+                    print("got team member: ", address, " adjusting...")
+                    airdrop_total += 29277435000000000000000 + 5209110000000000000000
+                if address.lower() == "0x6340ad78c79b6b5b9efb7d7f0ed40b500253804e".lower():
+                    print("got team member: ", address, " adjusting...")
+                    airdrop_total += 63560685000000000000000
                 success = True
             except Exception as e:
                 print('failed with: ', str(e))
@@ -645,6 +674,79 @@ def main():
     quit()
 
 #airdrop = airdrop1 + airdropx - airdropClaimAmount
+exploit_query = gql("""
+query getExploit($address: ID!) {
+  axoHolder(id: $address) {
+    id
+    axosHeld {
+      id
+    }
+    axosStakedV1 {
+      id
+    }
+    axosStakedV2 {
+      id
+    }
+    claimedAirdrops {
+      version
+      amount
+      blockHeight
+    }
+  }
+}
+""")
+
+def get_exploit(address):
+    params = {
+       "address":address.lower()
+     }
+    out = client.execute(exploit_query, variable_values=params)
+    d = out['axoHolder']['claimedAirdrops']
+    has_6, has_7, b6, b7 = False, False, 0, 0
+  
+    for drop in d:
+      if drop['version'] == '6':
+        b6 = drop['amount']
+        has_6 = True
+
+      if drop['version'] == '7':
+        b7 = drop['amount']
+        has_7 = True
+    if has_6 and has_7:
+      if b7 > b6:
+        #print('got exploit: ')
+        print(address)
+        print(int(b6) / 1e18)
+        return b6
+    return 0
+
+
+def run_get_exploit():
+    with open('./airdrop.json', 'r') as f:
+      d = json.loads(f.read())
+    addy, blc = [], []
+    for item in d:
+        try:
+            addy.append(item['address'])
+            blc.append(item['balance'])
+        except:
+            print(item)
+        
+    df = pd.DataFrame()
+    df['address'] = addy
+    df['balance'] = blc
+    df['balance'] = df['balance'].astype(float) / 1e18
+    print('got this many records:')
+    print(len(df))
+    exploit = 0
+    for i, row in df.iterrows():
+      try:
+        exploit += int(get_exploit(row['address']))
+      except:
+        print('got exception, cooling down...')
+        time.sleep(60)
+        exploit += int(get_exploit(row['address']))
+    print(exploit / 1e18)
 
 if __name__ in "__main__":
     main()

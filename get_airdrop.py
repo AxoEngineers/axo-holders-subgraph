@@ -200,6 +200,7 @@ def get_total_airdrop_claimed(address, stopBlock):
   claimed from airdrops.
   """
   amounts = get_airdrop_claims_for_user(address, stopBlock)
+  print(amounts)
   return sum(amounts)
 
 activity_query = gql(
@@ -554,7 +555,8 @@ def compute_later_airdrop(stopBlock=14324006, verbose=True):
     output = []
     ngmi = []
     with open('./holders.json', 'r') as f:
-        inp = json.loads(f.read())
+        #inp = json.loads(f.read())
+        inp = ['0x6340ad78c79b6b5b9efb7d7f0ed40b500253804e', '0xa1aed6f3b7c8f871b4ac27144ade9fda6fbcd639']
         print('got: ', len(inp), ' total holder addresses.')
     with open('./first_airdrop.json', 'r') as f:
         first_airdrop = json.loads(f.read())
@@ -584,6 +586,7 @@ def compute_later_airdrop(stopBlock=14324006, verbose=True):
                 v2_staking_bonus = get_v2_staking_bonus()
                 #subtract total claimed airdrop balance
                 total_claimed_airdrop = get_total_airdrop_claimed(address.lower(), stopBlock)
+                print(first_airdrop_claimable, total_claimable, total_claimed_airdrop)
                 airdrop_total = first_airdrop_claimable + total_claimable + v2_staking_bonus - total_claimed_airdrop
                 success = True
             except Exception as e:
@@ -630,12 +633,12 @@ def main():
     stop_block = args.stopBlock
     verbose = args.verbose
     print('using stopBlock: ', stop_block)
-    print('getting all axoHolders...')
-    result = get_all_holders(stop_block, verbose=verbose)
-    print('done!')
-    with open('holders.json', 'w') as f:
-        print('got: ', len(list(result)), " holders.")
-        f.write(json.dumps(list(result)))
+    # print('getting all axoHolders...')
+    # result = get_all_holders(stop_block, verbose=verbose)
+    # print('done!')
+    # with open('holders.json', 'w') as f:
+    #     print('got: ', len(list(result)), " holders.")
+    #     f.write(json.dumps(list(result)))
     print('computing airdrop balances...')
     compute_later_airdrop(stopBlock=stop_block, verbose=verbose)
     print('done! exiting...')

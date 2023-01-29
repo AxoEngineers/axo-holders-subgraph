@@ -6,7 +6,10 @@ type AxoHolder @entity {
   axosStakedV1: [Axolittle!]! @derivedFrom(field: "stakedOwnerV1")
   axosStakedV2Test: [Axolittle!]! @derivedFrom(field: "stakedOwnerV2Test")
   axosStakedV2: [Axolittle!]! @derivedFrom(field: "stakedOwnerV2")
-  minted: [AxoMint!]! @derivedFrom(field: "to")
+  sealsHeld: [SappySeal!]! @derivedFrom(field: "owner")
+  sealsStaked: [SappySeal!]! @derivedFrom(field: "stakedOwner")
+  frensHeld: [ChubbiFren!]! @derivedFrom(field: "owner")
+  chubbicornsHeld: [Chubbicorn!]! @derivedFrom(field: "owner")
   claimedBubble: [ClaimBubble!]! @derivedFrom(field: "to")
   claimedAirdrops: [AirdropClaim!]! @derivedFrom(field: "to")
   firstActiveBlock: BigInt!
@@ -18,6 +21,7 @@ type Tran @entity {
   from: AxoHolder!
   to: AxoHolder!
   token_id: BigInt!
+  token_type: String!
   blockHeight: BigInt!
   timestamp: BigInt
   transaction: TransferTransaction!
@@ -53,19 +57,30 @@ type ClaimBubble @entity {
   transaction_id: String!
 }
 
-type AxoMint @entity {
-  id: ID!
-  to: AxoHolder!
-  token_id: BigInt!
-  blockHeight: BigInt!
-  timestamp: BigInt
-}
-
 type Axolittle @entity {
   id: ID!
   owner: AxoHolder!
   stakedOwnerV1: AxoHolder!
   stakedOwnerV2Test: AxoHolder!
   stakedOwnerV2: AxoHolder!
+  mintBlock: BigInt!
+}
+
+type SappySeal @entity {
+  id: ID!
+  owner: AxoHolder!
+  stakedOwner: AxoHolder!
+  mintBlock: BigInt!
+}
+
+type ChubbiFren @entity {
+  id: ID!
+  owner: AxoHolder!
+  mintBlock: BigInt!
+}
+
+type Chubbicorn @entity {
+  id: ID!
+  owner: AxoHolder!
   mintBlock: BigInt!
 }

@@ -35,6 +35,103 @@ dataSources:
           handler: handleTransfer
       file: ./src/axo_mapping.ts
   - kind: ethereum
+    name: sappyseals
+    network: mainnet
+    source:
+      address: "0x364C828eE171616a39897688A831c2499aD972ec"
+      abi: sappyseals
+      startBlock: 13135000
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - Approval
+        - ApprovalForAll
+        - Mint
+        - OwnershipTransferred
+        - Transfer
+      abis:
+        - name: sappyseals
+          file: ./abis/sappy_seals.json
+      eventHandlers:
+        - event: Approval(indexed address,indexed address,indexed uint256)
+          handler: handleApproval
+        - event: ApprovalForAll(indexed address,indexed address,bool)
+          handler: handleApprovalForAll
+        - event: MintSeals(indexed address,uint256,uint256)
+          handler: handleMint
+        - event: OwnershipTransferred(indexed address,indexed address)
+          handler: handleOwnershipTransferred
+        - event: Transfer(indexed address,indexed address,indexed uint256)
+          handler: handleTransfer
+      file: ./src/seal_mapping.ts
+  - kind: ethereum
+    name: chubbifrens
+    network: mainnet
+    source:
+      address: "0x42f1654B8eeB80C96471451B1106b63D0B1a9fe1"
+      abi: chubbifrens
+      startBlock: 13530300
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - Approval
+        - ApprovalForAll
+        - Mint
+        - OwnershipTransferred
+        - Transfer
+      abis:
+        - name: chubbifrens
+          file: ./abis/chubbifrens.json
+      eventHandlers:
+        - event: Approval(indexed address,indexed address,indexed uint256)
+          handler: handleApproval
+        - event: ApprovalForAll(indexed address,indexed address,bool)
+          handler: handleApprovalForAll
+        - event: Claimed(indexed address,uint256)
+          handler: handleMint
+        - event: OwnershipTransferred(indexed address,indexed address)
+          handler: handleOwnershipTransferred
+        - event: Transfer(indexed address,indexed address,indexed uint256)
+          handler: handleTransfer
+      file: ./src/chubbifren_mapping.ts
+      #0xb072114151f32D85223aE7B00Ac0528d1F56aa6E
+  - kind: ethereum
+    name: chubbicorns
+    network: mainnet
+    source:
+      address: "0xb072114151f32D85223aE7B00Ac0528d1F56aa6E"
+      abi: chubbicorns
+      startBlock: 14471700
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - Approval
+        - ApprovalForAll
+        - Mint
+        - OwnershipTransferred
+        - Transfer
+      abis:
+        - name: chubbicorns
+          file: ./abis/chubbicorns.json
+      eventHandlers:
+        - event: Approval(indexed address,indexed address,indexed uint256)
+          handler: handleApproval
+        - event: ApprovalForAll(indexed address,indexed address,bool)
+          handler: handleApprovalForAll
+        - event: ChubbicornMigrated(uint256)
+          handler: handleMint
+        - event: OwnershipTransferred(indexed address,indexed address)
+          handler: handleOwnershipTransferred
+        - event: Transfer(indexed address,indexed address,indexed uint256)
+          handler: handleTransfer
+      file: ./src/chubbicorn_mapping.ts
+  - kind: ethereum
     name: bubble
     network: mainnet
     source:
@@ -94,5 +191,3 @@ dataSources:
         - event: Transfer(indexed address,indexed address,uint256)
           handler: handleWethTransfer
       file: ./src/weth_mapping.ts
-
-      #0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2

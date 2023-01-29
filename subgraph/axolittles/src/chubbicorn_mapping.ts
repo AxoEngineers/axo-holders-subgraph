@@ -1,25 +1,22 @@
 import { BigInt } from "@graphprotocol/graph-ts"
 import {
-  axolittles,
+  chubbicorns,
   Approval,
   ApprovalForAll,
-  Mint,
   OwnershipTransferred,
-  Transfer
-} from "../generated/axolittles/axolittles"
+  Transfer,
+  ChubbicornMigrated
+} from "../generated/chubbicorns/chubbicorns"
 
-let stakeAddressV1 = "0x1ca6e4643062e67ccd555fb4f64bee603340e0ea"
-let stakeAddressV2Test = "0xfa822d611e583a6fb879c03645ddfd1c8877252a"
-let stakeAddressV2 = "0xbfca4318f4d47f8a8e49e16c0f2b466c46eac184"
 let nullAddress = "0x0000000000000000000000000000000000000000"
 
-import { AxoHolder, Tran, Axolittle, TransferTransaction } from "../generated/schema"
+import { AxoHolder, Tran, TransferTransaction, Chubbicorn } from "../generated/schema"
 
 export function handleApproval(event: Approval): void {}
 
 export function handleApprovalForAll(event: ApprovalForAll): void {}
 
-export function handleMint(event: Mint): void {}
+export function handleMint(event: ChubbicornMigrated): void {}
 
 export function handleOwnershipTransferred(event: OwnershipTransferred): void {}
 
@@ -38,49 +35,12 @@ export function handleTransfer(event: Transfer): void {
     toAccount.firstActiveBlock = event.block.number
   }
 
-  let axo = Axolittle.load(event.params.tokenId.toString())
-  if (axo == null) {
-    axo = new Axolittle(event.params.tokenId.toString())
-    axo.mintBlock = event.block.number
+  let corn = Chubbicorn.load(event.params.tokenId.toString())
+  if (corn == null) {
+    corn = new Chubbicorn(event.params.tokenId.toString())
+    corn.mintBlock = event.block.number
   }
-  axo.owner = event.params.to.toHex()
-
-  if (event.params.to.toHex() == stakeAddressV1) {
-    //if this is a staking v1 transfer
-    axo.stakedOwnerV1 = event.params.from.toHex()
-  } else {
-    axo.stakedOwnerV1 = nullAddress
-  }
-
-  if (event.params.from.toHex() == stakeAddressV1) {
-    //if this is an unstaking v1 transfer
-    axo.stakedOwnerV1 = nullAddress
-  }
-
-  if (event.params.to.toHex() == stakeAddressV2Test) {
-    //if this is a staking v2 test contract transfer
-    axo.stakedOwnerV2Test = event.params.from.toHex()
-  } else {
-    axo.stakedOwnerV2Test = nullAddress
-  }
-
-  if (event.params.from.toHex() == stakeAddressV2Test) {
-    //if this is an unstaking v2 test contract transfer
-    axo.stakedOwnerV2Test = nullAddress
-  }
-
-  if (event.params.to.toHex() == stakeAddressV2) {
-    //if this is a staking v2 transfer
-    axo.stakedOwnerV2 = event.params.from.toHex()
-  } else {
-    axo.stakedOwnerV2 = nullAddress
-  }
-
-  if (event.params.from.toHex() == stakeAddressV2) {
-    //if this is an unstaking v2 transfer
-    axo.stakedOwnerV2 = nullAddress
-  }
-
+  corn.owner = event.params.to.toHex()
 
   fromAccount.lastActiveBlock = event.block.number
   toAccount.lastActiveBlock = event.block.number
@@ -96,8 +56,8 @@ export function handleTransfer(event: Transfer): void {
   let transfer = new Tran(transfer_id)
   transfer.from = event.params.from.toHex()
   transfer.to = event.params.to.toHex()
+  transfer.token_type = 'chubbicorn'
   transfer.token_id = event.params.tokenId
-  transfer.token_type = 'axo'
   transfer.blockHeight = event.block.number
   transfer.timestamp = event.block.timestamp
 
@@ -121,7 +81,6 @@ export function handleTransfer(event: Transfer): void {
   fromAccount.save()
   toAccount.save()
   transfer.save()
-  axo.save()
+  corn.save()
   transaction.save()
-
 }
